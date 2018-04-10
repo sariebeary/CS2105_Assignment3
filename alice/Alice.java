@@ -1,6 +1,6 @@
 /*
-Name: YOUR_NAME_HERE
-Student number: YOUR_STUDENT_NO_HERE
+Name: Sarah Helen Bednar
+Student number: A0179788X
 */
 
 import java.io.File;
@@ -22,7 +22,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SealedObject;
 
 /**********************************************************************
-  * This skeleton program is prepared for weak and average students.  *
+  * This skeleton program is prepared for *lazy and average students. *
   *                                                                   *
   * If you are very strong in programming, DIY!                       *
   *                                                                   *
