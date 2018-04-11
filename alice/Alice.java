@@ -104,6 +104,7 @@ class Alice { // Alice is a TCP  client
                 }
             } catch (IOException ex) {
                 System.out.println("Eof");
+                System.out.println("Message saved to file " + MESSAGE_FILE);
                 pw.close();
                 
             } catch (ClassNotFoundException ex) {
@@ -144,12 +145,38 @@ class Alice { // Alice is a TCP  client
         // Read Bob's public key from file
         public void readPublicKey() {
             // key is stored as an object and need to be read using ObjectInputStream.
+            
             // See how Bob read his private key as an example.
+             try {
+                ObjectInputStream ois = 
+                    new ObjectInputStream(new FileInputStream(PUBLIC_KEY_FILE));
+                this.pubKey = (PublicKey)ois.readObject();
+                ois.close();
+            } catch (IOException oie) {
+                System.out.println("Error reading public key from file");
+                System.exit(1);
+            } catch (ClassNotFoundException cnfe) {
+                System.out.println("Error: cannot typecast to class PublicKey");
+                System.exit(1);            
+            }
+            
+            System.out.println("Public key read from file " + PUBLIC_KEY_FILE);
         }
 
         // Generate a session key
         public void initSessionKey() {
             // suggested AES key length is 128 bits
+            KeyGenerator keyGen = null;
+            try {
+                keyGen = KeyGenerator.getInstance("AES");
+            } catch (NoSuchAlgorithmException nsae) {
+                System.out.println("Error: cannot generate AES key");
+                System.exit(1);
+            }
+            
+            keyGen.init(128); // key length is 128 bits
+            sessionKey = keyGen.generateKey();
+  
         }
 
         // Seal session key with RSA public key in a SealedObject and return
