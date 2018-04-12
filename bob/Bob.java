@@ -30,7 +30,7 @@ class Bob {  // Bob is a TCP server
     private ObjectInputStream fromAlice;  // channel to read session key from Alice
     private ObjectOutputStream toAlice;   // channel to send encrypted messages to Alice
     private Crypto crypto;    // for message encryption and decryption
-    public static final String MESSAGE_FILE = "docs.txt"; // file to send
+    public static final String MESSAGE_FILE = "docs_windows.txt"; // file to send
     
     public static void main(String[] args)  {
         

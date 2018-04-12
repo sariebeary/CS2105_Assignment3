@@ -3,27 +3,22 @@
  Student number: A0179788X
  */
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.security.GeneralSecurityException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SealedObject;
 
 /**
@@ -96,27 +91,23 @@ class Alice { // Alice is a TCP  client
 
     // Receive messages one by one from Bob, decrypt and write to file
     public void receiveMessages() {
-        try {
-            // How to detect Bob has no more data to send?
-            PrintWriter pw = new PrintWriter(new File(MESSAGE_FILE));
-            try {
-                while (true) {
-                    SealedObject encrypted_msg = (SealedObject) this.fromBob.readObject();
-                    String msg = this.crypto.decryptMessage(encrypted_msg);
-                    pw.write(msg);
-                }
-            } catch (IOException ex) {
-                System.out.println("Eof");
-                System.out.println("Message saved to file " + MESSAGE_FILE);
-                pw.close();
+        // How to detect Bob has no more data to send?
 
-            } catch (ClassNotFoundException ex) {
-                System.out.println("Error: cannot typecast to class SealedObject");
-                System.exit(1);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(MESSAGE_FILE))) {
+            while (true) {
+                SealedObject encrypted_msg = (SealedObject) this.fromBob.readObject();
+                String msg = this.crypto.decryptMessage(encrypted_msg);
+                bw.write(msg);
             }
-        } catch (FileNotFoundException ex) {
+        } catch (IOException ex) {
+            System.out.println("Eof");
+            System.out.println("Message saved to file " + MESSAGE_FILE);
+
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Error: cannot typecast to class SealedObject");
             System.exit(1);
         }
+
     }
 
     /**
@@ -195,8 +186,12 @@ class Alice { // Alice is a TCP  client
                 // RSA imposes size restriction on the object being encrypted (117 bytes).
                 // Instead of sealing a Key object which is way over the size restriction,
                 // we shall encrypt AES key in its byte format (using getEncoded() method).
-            } catch (IOException | IllegalBlockSizeException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException ex) {
-                Logger.getLogger(Alice.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (GeneralSecurityException gse) {
+                System.out.println("Error: wrong cipher to encrypt message");
+                System.exit(1);
+            } catch (IOException ioe) {
+                System.out.println("Error creating SealedObject");
+                System.exit(1);
             }
             return sessionKeyObj;
 
